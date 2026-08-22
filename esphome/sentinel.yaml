@@ -1,0 +1,37 @@
+substitutions:
+  name: "sentinel"
+  friendly_name: "Sentinel"
+  log_level: "INFO"
+
+dashboard_import:
+  package_import_url: github://nrwiersma/sentinel/esphome/sentinel.yaml
+  import_full_config: false
+
+esp32:
+  board: esp32-c3-devkitm-1
+  variant: esp32c3
+  framework:
+    type: esp-idf
+    version: recommended
+
+packages:
+  base: !include common/base.yaml
+  ld2450: !include common/ld2450.yaml
+  bluetooth_base: !include common/bluetooth.yaml
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  comment: "Presence detection with light, temp and humidity sensors"
+  name_add_mac_suffix: true
+
+update:
+  - platform: http_request
+    id: update_http_request
+    name: Firmware Update
+    source: https://github.com/nrwiersma/sentinel/releases/latest/download/sentinel.manifest.json
+
+wifi:
+
+esp32_improv:
+  authorizer: none

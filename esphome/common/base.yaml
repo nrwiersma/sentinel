@@ -1,0 +1,562 @@
+esphome:
+  project:
+    name: nrwiersma.Sentinel
+    version: "0.1.0"
+
+logger:
+  level: ${log_level}
+
+api:
+  id: api_id
+  on_client_connected:
+    then:
+      # Wait until client has subscribed
+      - wait_until:
+          condition:
+            api.connected:
+              state_subscription_only: true
+          timeout: 3s
+      - if:
+          condition:
+            lambda: 'return id(status_led_select).current_option() == "Enabled" && id(led_mode_select).current_option() != "Manual Control";'
+          then:
+            # Stop any effects first
+            - light.turn_on:
+                id: led_rgb
+                effect: none
+            # Smooth celebration sequence with flowing colors
+            - light.turn_on:
+                id: led_rgb
+                brightness: 60%
+                red: 0%
+                green: 100%
+                blue: 100%
+                white: 0%
+                transition_length: 400ms
+            - delay: 400ms
+            - light.turn_on:
+                id: led_rgb
+                brightness: 65%
+                red: 0%
+                green: 70%
+                blue: 100%
+                white: 0%
+                transition_length: 350ms
+            - delay: 350ms
+            - light.turn_on:
+                id: led_rgb
+                brightness: 70%
+                red: 50%
+                green: 0%
+                blue: 100%
+                white: 0%
+                transition_length: 350ms
+            - delay: 350ms
+            - light.turn_on:
+                id: led_rgb
+                brightness: 65%
+                red: 100%
+                green: 100%
+                blue: 100%
+                white: 0%
+                transition_length: 400ms
+            - delay: 500ms
+      # Always restore to current mode, even if Manual Control
+      - script.execute: control_leds
+
+  on_client_disconnected:
+    then:
+      - script.execute: control_leds
+
+http_request:
+  verify_ssl: false
+
+ota:
+  - platform: esphome
+  - platform: http_request
+    id: ota_http_request
+
+sensor:
+  - platform: shtcx
+    id: "shtc3_sensor"
+    i2c_id: bus_a
+    temperature:
+      name: Temperature
+      id: temperature_sensor
+      filters:
+        - lambda: "return x + id(env_temperature_offset).state;"
+    humidity:
+      name: Humidity
+      id: humidity_sensor
+      filters:
+        - lambda: "return x + id(env_humidity_offset).state;"
+    address: 0x70
+    update_interval: 30s
+
+  - platform: bh1750
+    name: Illuminance
+    id: illuminance_sensor
+    i2c_id: bus_a
+    address: 0x23
+    update_interval: 2s
+    filters:
+      - lambda: "return x + id(env_illuminance_offset).state;"
+      - or:
+          - throttle: 30s
+          - delta: 2
+      - clamp:
+          min_value: 0
+
+i2c:
+  - id: bus_a
+    scl: GPIO1
+    sda: GPIO0
+    scan: true
+
+binary_sensor:
+  - platform: template
+    name: Occupancy
+    id: occupancy
+    device_class: occupancy
+    filters:
+      - delayed_off: !lambda 'return id(occupancy_off_delay).state * 1000.0;'
+    lambda: |-
+      return id(ld2450_occupancy).state;
+    on_state:
+      then:
+        - lambda: |-
+            auto mode = id(system_alarm_mode).current_option();
+            if (mode == "Presence") {
+              bool activate = id(occupancy).state;
+              bool desired = (id(relay_contact_mode).current_option() == "Normally Open (NO)") ? activate : !activate;
+              if (desired) {
+                id(system_alarm_relay).turn_on();
+              } else {
+                id(system_alarm_relay).turn_off();
+              }
+            }
+        - if:
+            condition:
+              lambda: |-
+                return id(led_mode_select).current_option() == "Presence";
+            then:
+              - script.execute: control_leds
+
+light:
+  - platform: esp32_rmt_led_strip
+    id: led_rgb
+    channel_colors: GRB
+    pin:
+      number: GPIO10
+    num_leds: 1
+    chipset: WS2812
+    name: "LED"
+    effects:
+      # Gentle breathing effects
+      - pulse:
+          name: "Slow Breathe"
+          transition_length: 3s
+          update_interval: 3s
+          min_brightness: 5%
+          max_brightness: 50%
+      - pulse:
+          name: "Medium Breathe"
+          transition_length: 2s
+          update_interval: 2s
+          min_brightness: 10%
+          max_brightness: 60%
+      - pulse:
+          name: "Fast Breathe"
+          transition_length: 1s
+          update_interval: 1s
+          min_brightness: 15%
+          max_brightness: 70%
+
+      # Presence detection effects - subtle, calming pulse
+      - pulse:
+          name: "Presence Glow"
+          transition_length: 4s
+          update_interval: 4s
+          min_brightness: 40%
+          max_brightness: 55%
+      - pulse:
+          name: "Presence Active"
+          transition_length: 2.5s
+          update_interval: 2.5s
+          min_brightness: 45%
+          max_brightness: 65%
+
+      # Network status effects
+      - pulse:
+          name: "Network Connecting"
+          transition_length: 1s
+          update_interval: 1s
+          min_brightness: 20%
+          max_brightness: 60%
+      - strobe:
+          name: "API Disconnected"
+          colors:
+            - state: true
+              brightness: 20%
+              red: 100%
+              green: 0%
+              blue: 100%
+              white: 0%
+              duration: 500ms
+            - state: false
+              duration: 2500ms
+
+      # Smooth transition effects
+      - pulse:
+          name: "Gentle Fade"
+          transition_length: 2s
+          update_interval: 2s
+          min_brightness: 0%
+          max_brightness: 100%
+
+select:
+  - platform: template
+    name: Relay Contact Mode
+    id: relay_contact_mode
+    entity_category: config
+    optimistic: true
+    options:
+      - "Normally Open (NO)"
+      - "Normally Closed (NC)"
+    initial_option: "Normally Open (NO)"
+    restore_value: true
+    on_value:
+      then:
+        - script.execute: update_relay_state
+
+  - platform: template
+    name: Relay Trigger Mode
+    id: system_alarm_mode
+    entity_category: config
+    optimistic: True
+    options:
+      - "Disabled"
+      - "Presence"
+    initial_option: "Disabled"
+    restore_value: true
+    on_value:
+      then:
+        - script.execute: update_relay_state
+
+  - platform: template
+    name: "LED Mode"
+    id: led_mode_select
+    entity_category: config
+    optimistic: true
+    options:
+      - "Manual Control"
+      - "Presence"
+    initial_option: "Manual Control"
+    restore_value: true
+    icon: mdi:led-variant
+    on_value:
+      then:
+        - script.execute: control_leds
+
+  - platform: template
+    name: "Network Status LED"
+    id: status_led_select
+    entity_category: config
+    optimistic: true
+    options:
+      - "Enabled"
+      - "Disabled"
+    initial_option: "Enabled"
+    restore_value: true
+    icon: mdi:led-on
+
+script:
+  - id: update_relay_state
+    mode: restart
+    then:
+      - lambda: |-
+          auto mode = id(system_alarm_mode).current_option();
+          bool activate = false;
+
+          if (mode == "Presence") {
+            activate = id(occupancy).state;
+          }
+
+          bool desired = (id(relay_contact_mode).current_option() == "Normally Open (NO)") ? activate : !activate;
+
+          if (desired) {
+            id(system_alarm_relay).turn_on();
+          } else {
+            id(system_alarm_relay).turn_off();
+          }
+
+  - id: control_leds
+    mode: restart
+    then:
+      - lambda: |
+          ESP_LOGD("control_leds", "Called - api_connected (subscribed): %d, led_mode: %s",
+                   id(api_id).is_connected_with_state_subscription(), id(led_mode_select).current_option().c_str());
+
+          // No API connection
+          if (!id(api_id).is_connected_with_state_subscription()) {
+            ESP_LOGD("control_leds", "Executing control_leds_connecting (no API)");
+            id(control_leds_connecting).execute();
+          }
+          // Manual control mode
+          else if (id(led_mode_select).current_option() == "Manual Control") {
+            ESP_LOGD("control_leds", "Executing control_leds_manual");
+            id(control_leds_manual).execute();
+          }
+          // Presence mode
+          else if (id(led_mode_select).current_option() == "Presence") {
+            ESP_LOGD("control_leds", "Executing control_leds_presence");
+            id(control_leds_presence).execute();
+          }
+
+  # Connection state - blue pulsing
+  - id: control_leds_connecting
+    then:
+      - if:
+          condition:
+            lambda: 'return id(status_led_select).current_option() == "Enabled";'
+          then:
+            - light.turn_on:
+                id: led_rgb
+                brightness: !lambda 'return 0.30 * id(led_brightness_multiplier).state;'
+                red: 0%
+                green: 60%
+                blue: 100%
+                white: 0%
+                transition_length: 500ms
+            - delay: 550ms
+            - light.turn_on:
+                id: led_rgb
+                effect: "Network Connecting"
+
+  # Manual control - turn off
+  - id: control_leds_manual
+    then:
+      - logger.log: "control_leds_manual: Turning off LED"
+      - light.turn_on:
+          id: led_rgb
+          effect: none
+      - delay: 50ms
+      - light.turn_on:
+          id: led_rgb
+          brightness: 1%
+          transition_length: 500ms
+      - delay: 500ms
+      - light.turn_off: led_rgb
+      - logger.log: "control_leds_manual: LED turned off"
+
+  # Presence mode
+  - id: control_leds_presence
+    then:
+      - if:
+          condition:
+            lambda: 'return id(occupancy).state;'
+          then:
+            # Presence detected - warm purple/magenta glow
+            - light.turn_on:
+                id: led_rgb
+                effect: none
+            - delay: 50ms
+            - light.turn_on:
+                id: led_rgb
+                brightness: !lambda 'return 0.55 * id(led_brightness_multiplier).state;'
+                red: 80%
+                green: 20%
+                blue: 100%
+                white: 0%
+                transition_length: 600ms
+            - delay: 650ms
+            - light.turn_on:
+                id: led_rgb
+                effect: "Presence Glow"
+          else:
+            # No presence - turn off
+            - light.turn_on:
+                id: led_rgb
+                brightness: 1%
+                transition_length: 500ms
+            - delay: 500ms
+            - light.turn_off: led_rgb
+
+  # Smooth fade out helper
+  - id: led_fade_out
+    then:
+      - if:
+          condition:
+            light.is_on: led_rgb
+          then:
+            - light.turn_on:
+                id: led_rgb
+                brightness: 1%
+                transition_length: 500ms
+            - delay: 500ms
+            - light.turn_off: led_rgb
+
+  # Smooth fade in helper
+  - id: led_fade_in
+    parameters:
+      brightness: float
+      red: float
+      green: float
+      blue: float
+      effect: string
+    then:
+      # Clear any running effects first
+      - light.turn_on:
+          id: led_rgb
+          effect: none
+      - light.turn_on:
+          id: led_rgb
+          brightness: 1%
+          red: !lambda 'return red;'
+          green: !lambda 'return green;'
+          blue: !lambda 'return blue;'
+          white: 0%
+          transition_length: 0s
+      - delay: 50ms
+      - light.turn_on:
+          id: led_rgb
+          brightness: !lambda 'return brightness * id(led_brightness_multiplier).state;'
+          transition_length: 700ms
+      - delay: 750ms
+      - if:
+          condition:
+            lambda: 'return effect != "none";'
+          then:
+            - light.turn_on:
+                id: led_rgb
+                effect: !lambda 'return effect;'
+
+  - id: update_led_state
+    then:
+      - if:
+          condition:
+            lambda: 'return id(led_mode_select).current_option() == "Manual Control";'
+          then:
+            - logger.log: "Setting LED to Manual Control mode"
+            - script.execute: led_fade_out
+
+      - if:
+          condition:
+            lambda: 'return id(led_mode_select).current_option() == "Presence";'
+          then:
+            - logger.log: "Setting LED to Presence mode"
+            # Check current occupancy and set appropriate state
+            - if:
+                condition:
+                  lambda: 'return id(occupancy).state;'
+                then:
+                  - script.execute:
+                      id: led_fade_in
+                      brightness: 0.55
+                      red: 0.0
+                      green: 1.0
+                      blue: 0.8
+                      effect: "Presence Glow"
+                else:
+                  - script.execute: led_fade_out
+
+switch:
+  - platform: gpio
+    name: "Relay Output"
+    id: system_alarm_relay
+    pin:
+      number: GPIO3
+      inverted: false
+
+number:
+  - platform: template
+    name: "LED Brightness"
+    id: led_brightness_multiplier
+    icon: mdi:brightness-6
+    entity_category: config
+    min_value: 0.1
+    max_value: 1.0
+    initial_value: 1.0
+    optimistic: true
+    step: 0.05
+    restore_value: true
+    mode: slider
+    on_value:
+      then:
+        # Refresh LED state when brightness changes
+        - if:
+            condition:
+              lambda: 'return id(led_mode_select).current_option() != "Manual Control" && id(api_id).is_connected_with_state_subscription();'
+            then:
+              - script.execute: control_leds
+
+  - platform: template
+    name: Occupancy Timeout
+    icon: mdi:clock-end
+    entity_category: config
+    id: occupancy_off_delay
+    min_value: 1
+    max_value: 600
+    initial_value: 15
+    optimistic: true
+    step: 5
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: slider
+
+  - platform: template
+    name: "Temperature Calibration"
+    id: env_temperature_offset
+    unit_of_measurement: "°C"
+    min_value: -20
+    max_value: 20
+    step: 0.1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    icon: "mdi:thermometer"
+    entity_category: config
+    on_value:
+      - lambda: 'id(shtc3_sensor).update();'
+
+  - platform: template
+    name: "Humidity Calibration"
+    id: env_humidity_offset
+    unit_of_measurement: "%"
+    min_value: -50
+    max_value: 50
+    step: 0.1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    icon: "mdi:water-percent"
+    entity_category: config
+    on_value:
+      - lambda: 'id(shtc3_sensor).update();'
+
+  - platform: template
+    name: "Illuminance Calibration"
+    id: env_illuminance_offset
+    unit_of_measurement: "lx"
+    min_value: -50
+    max_value: 50
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+    icon: "mdi:brightness-5"
+    entity_category: config
+    on_value:
+      - lambda: 'id(illuminance_sensor).update();'
+
+button:
+  - platform: restart
+    name: "Restart Device"
+    id: restart_device
+    entity_category: config
