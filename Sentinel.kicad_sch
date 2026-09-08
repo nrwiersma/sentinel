@@ -1,0 +1,449 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "cdf44d2d-067e-4c42-853d-0c904967ca80")
+	(paper "A4")
+	(title_block
+		(title "Sentinel")
+		(rev "v0.1")
+		(company "Nicholas Wiersma")
+	)
+	(lib_symbols
+		(symbol "Mechanical:MountingHole"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "H"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MountingHole"
+				(at 0 3.175 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Mounting Hole without connection"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "mounting hole"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "MountingHole*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "MountingHole_0_1"
+				(circle
+					(center 0 0)
+					(radius 1.27)
+					(stroke
+						(width 1.27)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(wire
+		(pts
+			(xy 137.16 109.22) (xy 151.13 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "872f3151-0b19-4bc0-83f7-519f21987be2")
+	)
+	(wire
+		(pts
+			(xy 137.16 115.57) (xy 151.13 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8988637d-81c1-4483-b2a1-e039d714f4dc")
+	)
+	(wire
+		(pts
+			(xy 137.16 113.03) (xy 151.13 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8aa79506-c827-4471-a788-4b3a476a7504")
+	)
+	(wire
+		(pts
+			(xy 137.16 106.68) (xy 151.13 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e22a4ffb-734d-4571-b0c8-c45b6ab13076")
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 278.13 16.51 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp yes)
+		(fields_autoplaced yes)
+		(uuid "98069788-6031-4e65-997e-d07760ab583c")
+		(property "Reference" "H1"
+			(at 280.67 15.2399 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 280.67 17.7799 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
+			(at 278.13 16.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 278.13 16.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 278.13 16.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Sentinel"
+				(path "/cdf44d2d-067e-4c42-853d-0c904967ca80"
+					(reference "H1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(sheet
+		(at 151.13 100.33)
+		(size 52.07 16.51)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "007a7e3b-85a0-4ffa-9ae4-4339ce89c8fd")
+		(property "Sheetname" "Sensors"
+			(at 177.546 108.204 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 2 2)
+				)
+			)
+		)
+		(property "Sheetfile" "Sensors.kicad_sch"
+			(at 151.13 117.348 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "I2C_SCL" input
+			(at 151.13 115.57 180)
+			(uuid "9acacacb-4c2b-4a08-ab98-1dd3dce07039")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "I2C_SDA" input
+			(at 151.13 113.03 180)
+			(uuid "5816306f-6f01-45ef-891e-ffb35b80e6af")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "UART_RX" input
+			(at 151.13 109.22 180)
+			(uuid "2fae064b-34f6-4c2c-b9f6-d877a39957cd")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "UART_TX" input
+			(at 151.13 106.68 180)
+			(uuid "2d499f60-8610-416b-a29f-13eed62448f5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "Sentinel"
+				(path "/cdf44d2d-067e-4c42-853d-0c904967ca80"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 96.52 74.93)
+		(size 40.64 41.91)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "3d5f6e39-8074-4d57-b134-c6ed10144620")
+		(property "Sheetname" "ESP32"
+			(at 116.078 95.504 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 4 4)
+					(thickness 0.5)
+				)
+			)
+		)
+		(property "Sheetfile" "ESP32.kicad_sch"
+			(at 96.52 117.4246 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "UART_TX" input
+			(at 137.16 106.68 0)
+			(uuid "caf98298-2748-452a-9f27-feb2c31c8990")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "UART_RX" input
+			(at 137.16 109.22 0)
+			(uuid "031d8fc0-bc7e-49c1-8d94-576ba20a95f1")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "I2C_SDA" input
+			(at 137.16 113.03 0)
+			(uuid "dd6e4fb1-e376-4a48-a5db-5897a59d1604")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "I2C_SCL" input
+			(at 137.16 115.57 0)
+			(uuid "a716a0bf-4501-4884-9532-165498eb6fb5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "Sentinel"
+				(path "/cdf44d2d-067e-4c42-853d-0c904967ca80"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 151.13 74.93)
+		(size 52.07 13.97)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "8618e1e5-1143-4751-91b6-c44f03220fc9")
+		(property "Sheetname" "Power"
+			(at 178.308 82.296 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 2 2)
+				)
+			)
+		)
+		(property "Sheetfile" "Power.kicad_sch"
+			(at 151.13 89.408 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "Sentinel"
+				(path "/cdf44d2d-067e-4c42-853d-0c904967ca80"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
