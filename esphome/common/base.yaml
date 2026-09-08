@@ -537,7 +537,10 @@ number:
     icon: "mdi:thermometer"
     entity_category: config
     on_value:
-      - lambda: 'id(shtc3_sensor).update();'
+      - lambda: |-
+          if (App.is_setup_complete()) {
+            id(shtc3_sensor).update();
+          }
 
   - platform: template
     name: "Humidity Calibration"
@@ -554,7 +557,10 @@ number:
     icon: "mdi:water-percent"
     entity_category: config
     on_value:
-      - lambda: 'id(shtc3_sensor).update();'
+      - lambda: |-
+          if (App.is_setup_complete()) {
+            id(shtc3_sensor).update();
+          }
 
   - platform: template
     name: "Illuminance Calibration"
@@ -571,7 +577,10 @@ number:
     icon: "mdi:brightness-5"
     entity_category: config
     on_value:
-      - lambda: 'id(illuminance_sensor).update();'
+      - lambda: |-
+          if (App.is_setup_complete()) {
+            id(illuminance_sensor).update();
+          }
 
 button:
   - platform: restart
