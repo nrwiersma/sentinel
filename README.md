@@ -37,3 +37,13 @@ See the [Schematic](/blob/main/hardware/schematic.pdf) for more details on the h
 
 See the [Interactive BOM](https://htmlpreview.github.io/?https://github.com/nrwiersma/sentinel/blob/main/bom/ibom.html) [(provided by InteractiveHtmlBom)
 ](https://github.com/openscopeproject/InteractiveHtmlBom).
+
+### Update LD2450 Firmware
+
+* Download the HLKRadarTool on your phone
+* Connect to the LD2450 module via Bluetooth
+* Update the firmware to version 2.04.23101915 or later
+
+> [!WARNING]
+> If upgrading the firmware version to 2.14 or later, you need to set the baud rate back to 256000 in the HLKRadarTool 
+> app. This version change seems to reset the baud rate, and Sentinel will no longer be able to communicate with the LD2450 module.
