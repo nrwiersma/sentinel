@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-firmware:
+    name: Build Firmware
+    uses: esphome/workflows/.github/workflows/build.yml@0fdd5e311b7e744069166696072a1a9cbc5fbeb6  # 2026.8.1
+    with:
+      files: |
+        esphome/sentinel.yaml
+      esphome-version: 2026.8.0
+      release-summary: ${{ github.event_name == 'release' && github.event.release.body || '' }}
+      release-url: ${{ github.event_name == 'release' && github.event.release.html_url || '' }}
+      release-version: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+
+  comment:
+    if: github.event_name == 'pull_request'
+    needs:
+      - build-firmware
+    name: Comment on PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |-
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            })
+            const artifact = artifacts['data']['artifacts'].find(a => a.name === 'sentinel')
+            const url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifact['id']}`
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Firmware built successfully! :tada:
+
+            [Download][download] and extract the firmware to install with https://web.esphome.io
+
+            Make sure to choose \`sentinel.factory.bin\`.
+
+            [download]: ${url}`
+            })
+
+  summary:
+    if: github.event_name == 'release'
+    needs:
+      - build-firmware
+    name: Generate Summary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate
+        run: |-
+          echo "## Firmware built successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Attached to the [release](${{ github.event.release.html_url }})." >> $GITHUB_STEP_SUMMARY
+
+  upload-to-release:
+    if: github.event_name == 'release'
+    needs:
+      - build-firmware
+    name: Upload to Release
+    uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@0fdd5e311b7e744069166696072a1a9cbc5fbeb6  # 2026.8.1
+    with:
+      version: ${{ github.event.release.tag_name }}
