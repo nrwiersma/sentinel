@@ -286,6 +286,11 @@ globals:
     initial_value: 'false'
 
 number:
+  # This is a yaw/rotation correction (in the horizontal X/Y plane the LD2450
+  # reports), not an up/down tilt adjustment. Positive values mean the sensor
+  # is physically rotated clockwise (viewed from above) relative to true
+  # forward; the target position templates below rotate the raw X/Y readings
+  # by this angle to compensate.
   - platform: template
     name: "Tracking Sensor Angle"
     id: ld2450_installation_angle
