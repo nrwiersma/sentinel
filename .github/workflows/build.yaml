@@ -15,11 +15,11 @@ permissions:
 jobs:
   build-firmware:
     name: Build Firmware
-    uses: esphome/workflows/.github/workflows/build.yml@0fdd5e311b7e744069166696072a1a9cbc5fbeb6  # 2026.8.1
+    uses: esphome/workflows/.github/workflows/build.yml@cc3e76de337dc59bc1cba8da58d963cd23b873f1  # 2026.9.0
     with:
       files: |
         esphome/sentinel.yaml
-      esphome-version: 2026.8.0
+      esphome-version: 2026.9.0
       release-summary: ${{ github.event_name == 'release' && github.event.release.body || '' }}
       release-url: ${{ github.event_name == 'release' && github.event.release.html_url || '' }}
       release-version: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
@@ -77,6 +77,6 @@ jobs:
     needs:
       - build-firmware
     name: Upload to Release
-    uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@0fdd5e311b7e744069166696072a1a9cbc5fbeb6  # 2026.8.1
+    uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@cc3e76de337dc59bc1cba8da58d963cd23b873f1  # 2026.9.0
     with:
       version: ${{ github.event.release.tag_name }}
